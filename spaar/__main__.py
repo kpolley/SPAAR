@@ -1,5 +1,4 @@
 import argparse
-from threading import local
 import detections
 import streams
 from utils import local_spark

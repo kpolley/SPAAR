@@ -1,4 +1,4 @@
-from pyspark.sql.functions import udf
+from pyspark.sql import functions as F
 from pyspark.sql.types import BooleanType
 
 DATALAKE_DIR = "s3a://kpolley-datalake"
@@ -7,7 +7,6 @@ class Detection:
     def __init__(self, spark, path, schema):
         self._spark = spark
         self._df = None
-        self._udf = udf(self.should_trigger, BooleanType())
 
         self._path = path
         self._schema = schema
@@ -18,16 +17,12 @@ class Detection:
             .schema(self._schema) \
             .parquet(self._path)
 
-
-    def should_trigger(self):
+    def run_trigger(self):
         return True
-
-    def run_trigger(self, *args):
-        self._df = self._df.filter(udf(self.should_trigger(args)))
 
     def generate_alert(self):
         #TODO: logic to send alert some place
-        self._df.writeStream \
+        self._df = self._df.writeStream \
             .option("checkpointLocation", f"{DATALAKE_DIR}/aws_unused_region_checkpoint") \
             .trigger(processingTime="60 seconds") \
             .foreach(lambda message: print(message))
