@@ -3,15 +3,13 @@ import detections
 import streams
 from utils import local_spark
 
-from schemas import *
-
 parser = argparse.ArgumentParser(description='SPAAR')
 parser.add_argument("--type", help="detection or stream")
 parser.add_argument("--name", help="job name")
 parser.add_argument("--local", default=False, action="store_true")
 
 DETECTIONS = {
-    "cloudtrail-root_login": detections.cloudtrail.CloudTrailRootLogin
+    "cloudtrail-root_login": detections.cloudtrail.UnusedRegion
 }
 
 STREAMS = {
@@ -26,16 +24,10 @@ if __name__ == "__main__":
         spark = local_spark()
 
     if args.type == "detection":
-        #TODO: detection logic
-        print("detection")
-
         detection = DETECTIONS[args.name].detection(spark)
         detection.run()
 
     elif args.type == "stream":
-        #TODO: stream logic
-        print("stream")
-
         stream = STREAMS[args.name].stream
         stream = stream(spark)
         stream.run()
