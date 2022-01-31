@@ -1,5 +1,4 @@
 import unittest
-from pyspark.sql import functions as F
 from spaar.detections.cloudtrail import UnusedRegion
 from spaar.utils.spark import local_spark
 
