@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
-from schemas import cloudtrail 
-from streams.base import Stream
+from spaar.schemas import cloudtrail 
+from spaar.streams.base import Stream
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
 import time
