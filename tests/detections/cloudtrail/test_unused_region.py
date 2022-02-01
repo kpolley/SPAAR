@@ -9,7 +9,7 @@ INPUT_DATA = "tests/detections/cloudtrail/input/unused_region.json"
 class UnusedRegionTest(unittest.TestCase):
     def setUp(self):
         self._detection = UnusedRegion.detection(SPARK)
-        self._detection._df = SPARK.read.schema(UnusedRegion.SCHEMA).json(INPUT_DATA)
+        self._detection._df = SPARK.read.schema(UnusedRegion.detection.schema).json(INPUT_DATA)
 
     def test_trigger(self):
         # running the trigger on test dataset

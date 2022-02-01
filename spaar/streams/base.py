@@ -2,7 +2,6 @@ class Stream:
     def __init__(self, spark):
         self._spark = spark
         self._df = None
-        print("initializing")
     
     def read(self):
         raise NotImplementedError

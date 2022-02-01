@@ -1,23 +1,20 @@
 from pyspark.sql import functions as F
 from pyspark.sql.types import BooleanType
 from spaar.utils.alert import send_sns, row_to_string
+from spaar.config import Config
 
-DATALAKE_DIR = "s3a://kpolley-datalake"
+DATALAKE_DIR = Config.get('s3_bucket')
 
 class Detection:
-    def __init__(self, spark, path, schema, title):
+    def __init__(self, spark):
         self._spark = spark
         self._df = None
-
-        self._path = path
-        self._schema = schema
-        self._title = title
 
     def read(self):
         self._df = self._spark.readStream \
             .option("maxFilesPerTrigger", 100) \
-            .schema(self._schema) \
-            .parquet(self._path)
+            .schema(self.schema) \
+            .parquet(self.input_dir)
 
     def run_trigger(self):
         return True
@@ -27,7 +24,7 @@ class Detection:
         self._df = self._df.writeStream \
             .option("checkpointLocation", f"{DATALAKE_DIR}/{self.__class__.__name__}_checkpoint") \
             .trigger(processingTime="60 seconds") \
-            .foreach(lambda row: send_sns(self._title, row_to_string(row)))
+            .foreach(lambda row: send_sns(self.alert_title, row_to_string(row)))
 
     def run(self):
         self.read()

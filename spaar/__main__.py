@@ -2,6 +2,7 @@ import argparse
 import detections
 import streams
 from utils import local_spark
+from spaar.config import Config
 
 parser = argparse.ArgumentParser(description='SPAAR')
 parser.add_argument("--type", help="detection or stream")
@@ -22,6 +23,9 @@ if __name__ == "__main__":
 
     if args.local:
         spark = local_spark()
+        Config.set('dev')
+    else:
+        Config.set('prod')
 
     if args.type == "detection":
         detection = DETECTIONS[args.name].detection(spark)

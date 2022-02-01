@@ -1,12 +1,14 @@
 from datetime import datetime, timezone
 from spaar.schemas import cloudtrail 
 from spaar.streams.base import Stream
+from spaar.config import Config
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
 import time
 
-RAW_BUCKET = "s3a://aws-cloudtrail-logs-526392422370-def493f2"
-DATALAKE_DIR = "s3a://kpolley-datalake"
+CLOUDTRAIL_RAW_BUCKET = "s3a://aws-cloudtrail-logs-526392422370-def493f2"
+CLOUDTRAIL_DATALAKE_DIR = Config.get('s3_bucket') + '/cloudtrail'
+CLOUDTRAIL_CHECKPOINT_DIR = Config.get('s3_bucket') + '/cloudtrail_checkpoint'
 
 def get_cloudtrail_path(date=datetime.now(timezone.utc)):
     """
@@ -16,18 +18,20 @@ def get_cloudtrail_path(date=datetime.now(timezone.utc)):
     month = f"{date.month:02}"
     day = f"{date.day:02}"
 
-    return f"{RAW_BUCKET}/AWSLogs/*/CloudTrail/*/{year}/{month}/{day}/*.json.gz"
+    return f"{CLOUDTRAIL_RAW_BUCKET}/AWSLogs/*/CloudTrail/*/{year}/{month}/{day}/*.json.gz"
 
 class CloudtrailParquet(Stream):
+    path = get_cloudtrail_path()
+    schema = cloudtrail.schema
+
     def __init__(self, spark):
-        self._path = get_cloudtrail_path()
         Stream.__init__(self, spark)
         
     def read(self):
         self._df = self._spark.readStream \
             .option("maxFilesPerTrigger", 100) \
             .schema(cloudtrail.schema) \
-            .json(self._path)
+            .json(self.path)
 
     def transform(self):
         # explode the Records array
@@ -44,10 +48,10 @@ class CloudtrailParquet(Stream):
     def load(self):
         self._df.writeStream \
             .format("parquet") \
-            .option("path", DATALAKE_DIR + "/cloudtrail/") \
+            .option("path", CLOUDTRAIL_DATALAKE_DIR) \
             .partitionBy("dt", "hr") \
             .trigger(processingTime="60 seconds") \
-            .option("checkpointLocation", DATALAKE_DIR + "/cloudtrail_checkpoint/")
+            .option("checkpointLocation", CLOUDTRAIL_CHECKPOINT_DIR)
 
     def run(self):
         """
@@ -59,9 +63,9 @@ class CloudtrailParquet(Stream):
         self._df.start()
 
         while True:
-            if get_cloudtrail_path() != self._path:
+            if get_cloudtrail_path() != self.path:
                 self._df.stop()
-                self._path = get_cloudtrail_path()
+                self.path = get_cloudtrail_path()
             
                 self.read()
                 self.transform()

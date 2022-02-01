@@ -6,7 +6,7 @@ from spaar.utils.spark import local_spark
 
 SPARK = local_spark()
 
-INPUT_DATA = "tests/detections/cloudtrail/input/cloudtrail_stream.json"
+INPUT_DATA = "tests/streams/input/cloudtrail_stream.json"
 
 class CloudtrailTest(unittest.TestCase):
     def setUp(self):
