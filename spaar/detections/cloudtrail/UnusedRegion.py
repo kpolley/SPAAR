@@ -1,8 +1,8 @@
 from spaar.detections.base import Detection
-from spaar.config import Config
+from spaar.utils.spark import schema_subset
+from spaar.schemas.cloudtrail import bronze
 from pyspark.sql import functions as F
-from pyspark.sql.types import StructType, StringType, DateType, TimestampType, BooleanType
-
+from pyspark.sql.types import BooleanType
 
 @F.udf(BooleanType())
 def should_trigger(region):
@@ -22,20 +22,22 @@ class UnusedRegion(Detection):
     alert_title = "AWS Activity in Unused Region"
 
     # fields used for detection logic/alert output
-    schema = StructType() \
-        .add('eventName', StringType()) \
-        .add('eventSource', StringType()) \
-        .add('awsRegion', StringType()) \
-        .add('errorMessage', StringType()) \
-        .add('sourceIPAddress', StringType()) \
-        .add('eventID', StringType()) \
-        .add('userIdentity.arn', StringType()) \
-        .add('userAgent', StringType()) \
-        .add('dt', DateType()) \
-        .add('ts', TimestampType())
+    cloudtrail_fields = [
+        'eventName',
+        'eventSource',
+        'awsRegion',
+        'errorMessage',
+        'sourceIPAddress',
+        'eventID',
+        'userIdentity.arn',
+        'userAgent',
+        'dt',
+        'ts'
+    ]
+    schema = schema_subset(bronze.schema, cloudtrail_fields)
     
-    # input directory
-    input_dir = Config.get('s3_bucket') + '/cloudtrail'
+    # s3 bucket to read from
+    s3_bucket = bronze.s3_bucket
 
     def __init__(self, spark):
         Detection.__init__(self, spark)

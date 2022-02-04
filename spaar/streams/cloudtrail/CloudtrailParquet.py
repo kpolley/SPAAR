@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from spaar.schemas import cloudtrail 
+from spaar.schemas.cloudtrail import raw 
 from spaar.streams.base import Stream
 from spaar.config import Config
 import pyspark.sql.functions as F
@@ -22,7 +22,7 @@ def get_cloudtrail_path(date=datetime.now(timezone.utc)):
 
 class CloudtrailParquet(Stream):
     path = get_cloudtrail_path()
-    schema = cloudtrail.schema
+    schema = raw.schema
 
     def __init__(self, spark):
         Stream.__init__(self, spark)
@@ -30,7 +30,7 @@ class CloudtrailParquet(Stream):
     def read(self):
         self._df = self._spark.readStream \
             .option("maxFilesPerTrigger", 100) \
-            .schema(cloudtrail.schema) \
+            .schema(cloudtrail_raw.schema) \
             .json(self.path)
 
     def transform(self):

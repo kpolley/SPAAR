@@ -1,5 +1,3 @@
-from pyspark.sql import functions as F
-from pyspark.sql.types import BooleanType
 from spaar.utils.alert import send_sns, row_to_string
 from spaar.config import Config
 
@@ -14,7 +12,7 @@ class Detection:
         self._df = self._spark.readStream \
             .option("maxFilesPerTrigger", 100) \
             .schema(self.schema) \
-            .parquet(self.input_dir)
+            .parquet(self.s3_bucket)
 
     def run_trigger(self):
         return True

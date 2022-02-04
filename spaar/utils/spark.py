@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-import pyspark.sql.functions as f
+from pyspark.sql.types import StructType
 
 def local_spark():
     from boto3 import Session
@@ -17,7 +17,29 @@ def local_spark():
     .config("spark.sql.session.timeZone", "UTC") \
     .getOrCreate()
 
-def udf(return_type, *cols):
-    def _typed_udf_wrapper(func):
-        return f.udf(func, return_type, *cols)
-    return _typed_udf_wrapper
+def schema_subset(schema, requested_fields):
+    """
+    Input: A defined StructType schema and a list of fields 
+    Output: A StructType schema object with just those fields
+    """
+   
+    def schema_subset_helper(schema, nested_field):
+        """
+        helper function which handles nested fields ex. userIdentity.arn
+        """
+        schema = schema['fields']
+        this_field = nested_field.pop(0)
+        for key in schema:
+            if key['name'] == this_field:
+                if len(nested_field) == 0:
+                    return key
+                return schema_subset_helper(key['type'], nested_field)
+
+    ret = {'fields': []}
+    schema = schema.jsonValue()    
+    for requested_field in requested_fields:
+        requested_field = requested_field.split('.')
+        field = schema_subset_helper(schema, requested_field)
+        ret['fields'].append(field)
+
+    return StructType.fromJson(ret)

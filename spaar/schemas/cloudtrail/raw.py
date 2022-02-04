@@ -28,29 +28,29 @@ schema = StructType() \
                 .add("serviceEventDetails", MapType(StringType(), StringType())) \
                 .add("userAgent", StringType()) \
                 .add("userIdentity", StructType() \
-                .add("accessKeyId", StringType()) \
-                .add("accountId", StringType()) \
-                .add("arn", StringType()) \
-                .add("invokedBy", StringType()) \
-                .add("principalId", StringType()) \
-                .add("sessionContext", StructType() \
-                    .add("attributes", StructType() \
-                    .add("creationDate", StringType()) \
-                    .add("mfaAuthenticated", StringType()) \
-                    ) \
-                    .add("sessionIssuer", StructType() \
+                    .add("accessKeyId", StringType()) \
                     .add("accountId", StringType()) \
                     .add("arn", StringType()) \
+                    .add("invokedBy", StringType()) \
                     .add("principalId", StringType()) \
+                    .add("sessionContext", StructType() \
+                        .add("attributes", StructType() \
+                        .add("creationDate", StringType()) \
+                        .add("mfaAuthenticated", StringType()) \
+                        ) \
+                        .add("sessionIssuer", StructType() \
+                        .add("accountId", StringType()) \
+                        .add("arn", StringType()) \
+                        .add("principalId", StringType()) \
+                        .add("type", StringType()) \
+                        .add("userName", StringType()) \
+                        )
+                    ) \
                     .add("type", StringType()) \
                     .add("userName", StringType()) \
+                    .add("webIdFederationData", StructType() \
+                        .add("federatedProvider", StringType()) \
+                        .add("attributes", MapType(StringType(), StringType())) \
                     )
-                ) \
-                .add("type", StringType()) \
-                .add("userName", StringType()) \
-                .add("webIdFederationData", StructType() \
-                    .add("federatedProvider", StringType()) \
-                    .add("attributes", MapType(StringType(), StringType())) \
-                )
                 ) \
                 .add("vpcEndpointId", StringType())))
