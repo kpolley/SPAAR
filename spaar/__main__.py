@@ -1,22 +1,12 @@
 import argparse
-import detections
-import streams
-from utils import local_spark
+
+from spaar.utils import local_spark
 from spaar.config import Config
 
 parser = argparse.ArgumentParser(description='SPAAR')
-parser.add_argument("--type", help="detection or stream")
-parser.add_argument("--name", help="job name")
+parser.add_argument("--type", help="detection or stream", required=True)
+parser.add_argument("--job", help="job name", required=True)
 parser.add_argument("--local", default=False, action="store_true")
-
-DETECTIONS = {
-    "cloudtrail-root_login": detections.cloudtrail.UnusedRegion
-}
-
-STREAMS = {
-    "cloudtrail-parquet": streams.cloudtrail.CloudtrailParquet
-}
-
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -27,14 +17,9 @@ if __name__ == "__main__":
     else:
         Config.set('prod')
 
-    if args.type == "detection":
-        detection = DETECTIONS[args.name].detection(spark)
-        detection.run()
+    from spaar import detections
+    from spaar import streams
 
-    elif args.type == "stream":
-        stream = STREAMS[args.name].stream
-        stream = stream(spark)
-        stream.run()
-    else:
-        #TODO error out
-        print("error")
+    job_obj = eval(str(args.job))
+    job_obj.job(spark).run()
+    

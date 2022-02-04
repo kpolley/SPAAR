@@ -45,4 +45,4 @@ class UnusedRegion(Detection):
     def run_trigger(self):
         self._df = self._df.filter(should_trigger(F.col('awsRegion')))
 
-detection = UnusedRegion
+job = UnusedRegion

@@ -30,7 +30,7 @@ class CloudtrailParquet(Stream):
     def read(self):
         self._df = self._spark.readStream \
             .option("maxFilesPerTrigger", 100) \
-            .schema(cloudtrail_raw.schema) \
+            .schema(raw.schema) \
             .json(self.path)
 
     def transform(self):
@@ -41,12 +41,12 @@ class CloudtrailParquet(Stream):
         
         # convert `eventTime` to timestamp datatype, then add columns `ts`, `dt`, and `hr`
         self._df = self._df \
-            .withColumn('ts', F.unix_timestamp("eventTime", "yyyy-MM-dd'T'HH:mm:ss'Z'").cast("timestamp")) \
+            .withColumn('ts', F.to_timestamp("eventTime", "yyyy-MM-dd'T'HH:mm:ss'Z'").cast("timestamp")) \
             .withColumn("dt", F.col('ts').cast('date')) \
             .withColumn("hr", F.hour('ts'))
 
     def load(self):
-        self._df.writeStream \
+        self._df = self._df.writeStream \
             .format("parquet") \
             .option("path", CLOUDTRAIL_DATALAKE_DIR) \
             .partitionBy("dt", "hr") \
@@ -60,18 +60,19 @@ class CloudtrailParquet(Stream):
         self.read()
         self.transform()
         self.load()
-        self._df.start()
+        self._df = self._df.start()
 
         while True:
             if get_cloudtrail_path() != self.path:
-                self._df.stop()
+                self._df = self._df.stop()
                 self.path = get_cloudtrail_path()
             
                 self.read()
                 self.transform()
                 self.load()
-                self._df.start()
+                self._df = self._df.start()
 
+            print(f"Streaming Status: {self._df.status}")
             time.sleep(300)
 
-stream = CloudtrailParquet
+job = CloudtrailParquet

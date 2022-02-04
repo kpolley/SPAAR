@@ -11,4 +11,4 @@ def send_sns(subject, message):
     )
 
 def row_to_string(row):
-    return json.dumps(row.asDict(), indent=4)
+    return json.dumps(row.asDict(), indent=4, default=str)

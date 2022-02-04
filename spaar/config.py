@@ -3,7 +3,11 @@ PROD = {
 }
 
 DEV = {
-    "s3_bucket": "./datalake"
+    "s3_bucket": "s3a://kpolley-datalake-dev"
+}
+
+LOCAL = {
+    "s3_bucket": "./cloudtrail"
 }
 
 class Config:

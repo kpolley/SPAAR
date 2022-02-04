@@ -41,4 +41,4 @@ class RootLogin(Detection):
     def run_trigger(self):
         self._df = self._df.filter(should_trigger(F.col('eventName'), F.col('userIdentity.type')))
 
-detection = RootLogin
+job = RootLogin
