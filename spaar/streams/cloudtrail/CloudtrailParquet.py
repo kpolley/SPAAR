@@ -50,7 +50,7 @@ class CloudtrailParquet(Stream):
             .format("parquet") \
             .option("path", CLOUDTRAIL_DATALAKE_DIR) \
             .partitionBy("dt", "hr") \
-            .trigger(processingTime="60 seconds") \
+            .trigger(processingTime="300 seconds") \
             .option("checkpointLocation", CLOUDTRAIL_CHECKPOINT_DIR)
 
     def run(self):

@@ -23,23 +23,22 @@ def schema_subset(schema, requested_fields):
     Output: A StructType schema object with just those fields
     """
    
-    def schema_subset_helper(schema, nested_field):
+    def schema_subset_helper(schema, nested_fields):
         """
         helper function which handles nested fields ex. userIdentity.arn
         """
-        schema = schema['fields']
-        this_field = nested_field.pop(0)
-        for key in schema:
+        this_field = nested_fields.pop(0)
+        for key in schema['fields']:
             if key['name'] == this_field:
-                if len(nested_field) == 0:
+                if len(nested_fields) == 0:
                     return key
-                return schema_subset_helper(key['type'], nested_field)
+                key['type']['fields'] = [schema_subset_helper(key['type'], nested_fields)]
+                return key
 
     ret = {'fields': []}
     schema = schema.jsonValue()    
     for requested_field in requested_fields:
-        requested_field = requested_field.split('.')
-        field = schema_subset_helper(schema, requested_field)
+        field = schema_subset_helper(schema, requested_field.split('.'))
         ret['fields'].append(field)
 
     return StructType.fromJson(ret)
