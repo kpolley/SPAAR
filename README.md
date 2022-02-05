@@ -20,3 +20,14 @@
 ## Prerequisites
 * A spark cluster or single-node deployment
 * AWS access keys with permission to read/write to appropriate S3 buckets, and optionally SNS in order to send alerts
+
+## Streams
+[Streams](spaar/streams) are Spark ETL pipelines that ingest raw logs, transform them into structured datasets, and writes them to the datalake. There is a sample ETL pipeline for processing Cloudtrail logs. 
+
+## Detections
+[Detections](spaar/detections) are Spark jobs which read from the datalake and filter events based on defined logic. There are some sample detections which showcase various detection methods
+
+## Quickstart
+```
+python -m spaar --job detections.cloudtrail.UnusedRegion --dev
+```
