@@ -9,7 +9,6 @@ import geoip2.database
 def get_country_code(ip_address):
     reader = geoip2.database.Reader('assets/GeoLite2-City.mmdb')
     try:
-        print(reader.city(ip_address).country.iso_code)
         return reader.city(ip_address).country.iso_code
     except:
         pass
