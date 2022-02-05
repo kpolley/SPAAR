@@ -1,5 +1,5 @@
 import unittest
-from spaar.detections.cloudtrail import UnusedRegion
+from spaar.detections import cloudtrail
 from spaar.utils.spark import local_spark
 
 SPARK = local_spark()
@@ -8,8 +8,9 @@ INPUT_DATA = "tests/detections/cloudtrail/input/unused_region.json"
 
 class UnusedRegionTest(unittest.TestCase):
     def setUp(self):
-        self._detection = UnusedRegion.detection(SPARK)
-        self._detection._df = SPARK.read.schema(UnusedRegion.detection.schema).json(INPUT_DATA)
+        job = cloudtrail.UnusedRegion.job
+        self._detection = job(SPARK)
+        self._detection._df = SPARK.read.schema(job.schema).json(INPUT_DATA)
 
     def test_trigger(self):
         # running the trigger on test dataset

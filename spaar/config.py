@@ -6,12 +6,8 @@ DEV = {
     "s3_bucket": "s3a://kpolley-datalake-dev"
 }
 
-LOCAL = {
-    "s3_bucket": "./cloudtrail"
-}
-
 class Config:
-    _conf = None
+    _conf = DEV
 
     @staticmethod
     def set(env_name):

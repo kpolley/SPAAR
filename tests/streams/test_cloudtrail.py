@@ -10,7 +10,7 @@ INPUT_DATA = "tests/streams/input/cloudtrail_stream.json"
 
 class CloudtrailTest(unittest.TestCase):
     def setUp(self):
-        self._stream = CloudtrailParquet.stream(SPARK)
+        self._stream = CloudtrailParquet.job(SPARK)
         self._stream._df = SPARK.read.schema(raw.schema).json(INPUT_DATA)
 
     def test_transform(self):
@@ -24,6 +24,7 @@ class CloudtrailTest(unittest.TestCase):
             get_value_count(self._stream._df, 'dt', '2022-01-21') == 1
         )
 
+        # testing that the output schema matches what we expect 
         self.assertTrue(
             self._stream._df.schema == bronze.schema
         )

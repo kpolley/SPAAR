@@ -4,11 +4,11 @@ from spaar.utils.spark import local_spark
 
 SPARK = local_spark()
 
-INPUT_DATA = "tests/detections/cloudtrail/input/root_login.json"
+INPUT_DATA = "tests/detections/cloudtrail/input/high_failed_logins.json"
 
-class RootLoginTest(unittest.TestCase):
+class HighFailLoginsTest(unittest.TestCase):
     def setUp(self):
-        job = cloudtrail.RootLogin.job
+        job = cloudtrail.HighFailLogins.job
         self._detection = job(SPARK)
         self._detection._df = SPARK.read.schema(job.schema).json(INPUT_DATA)
 

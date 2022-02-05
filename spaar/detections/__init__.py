@@ -1,1 +1,1 @@
-from .cloudtrail import *
+from spaar.detections.cloudtrail import *
